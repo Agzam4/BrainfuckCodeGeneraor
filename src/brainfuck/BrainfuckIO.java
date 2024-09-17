@@ -22,24 +22,42 @@ public class BrainfuckIO {
 	public static void readAddInt(Byte variable, char stop) {
 		Brainfuck bf = variable.brainfuck;
 		
-		Byte needNext = bf.variable("$bf/io/neednext");
-		needNext.add(1); // set it to true
-
-		bf.repeatWhile(needNext, () -> {
-			Byte in = bf.$input();
-			bf.read(in);
-			bf.ifEqualElse(in, stop, () -> {
-				needNext.add(-1); // stop reading if it stop-character
-			}, () -> {
-				in.add(-'0');
-				variable.multiply(10);
-				bf.repeatWhile(in, () -> { // TODO: math
-					in.add(-1);
-					variable.add(1);
-				});
+		Byte in = bf.$input();
+		bf.read(in);
+		bf.ifEqualElse(in, '-', () -> {
+			// substract value
+			Byte needNext = bf.variable("$bf/io/neednext");
+			needNext.add(1); // set it to true
+			bf.repeatWhile(needNext, () -> {
+				bf.read(in);
+				readAddInt$changeValue(bf, in, stop, needNext, variable, -1);
+			});
+			needNext.delete();
+		}, () -> {
+			Byte needNext = bf.variable("$bf/io/neednext");
+			needNext.add(1); // set it to true
+			readAddInt$changeValue(bf, in, stop, needNext, variable, 1);
+			bf.repeatWhile(needNext, () -> {
+				bf.read(in);
+				readAddInt$changeValue(bf, in, stop, needNext, variable, 1);
+			});
+			needNext.delete();
+			// add value
+			
+		});
+	}
+	
+	private static void readAddInt$changeValue(Brainfuck bf, Byte in, char stop, Byte needNext, Byte variable, int mul) {
+		bf.ifEqualElse(in, stop, () -> {
+			needNext.add(-1); // stop reading if it stop-character
+		}, () -> {
+			in.add(-'0');
+			variable.multiply(10);
+			bf.repeatWhile(in, () -> { // TODO: math
+				in.add(-1);
+				variable.add(mul);
 			});
 		});
-		needNext.delete();
 	}
 
 	/**
@@ -57,6 +75,17 @@ public class BrainfuckIO {
 		Byte divider = bf.variable("$bf/io/printInt/divider");
 		Byte i = bf.variable("$bf/io/printInt/i");
 		v.set(value);
+		
+//		Byte maxValue = bf.variable("$bf/io/printInt/maxvalue");
+//		maxValue.add(bf.maxValue);
+//		bf.ifLessThanElse(value, maxValue, () -> {
+//			// value < maxValue
+//		}, () -> {
+//			// value >= maxValue
+//			maxValue.reset();
+//			maxValue.add('0');
+//			maxValue.print();
+//		});
 		
 		bf.repeatWhile(value, () -> {
 			value.divide(10).delete();
