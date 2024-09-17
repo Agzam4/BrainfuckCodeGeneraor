@@ -17,7 +17,7 @@ public class Brainfucker {
 		 * Example code for generating brainfuck code for searching maximum increasing sequence
 		 */
 
-		String input = "7\n10 20 3 0 3 4 8\n"; // input for brainfuck code/generator
+		String input = "7\n10 20 3 -8 -6 -3 8\n"; // input for brainfuck code/generator
 		
 		/**
 		 * Brainfuck.java allow you to generates and executes code at the same time
@@ -27,8 +27,8 @@ public class Brainfucker {
 		brainfuck.coments = false; // is comments in code endabled, you can place comments using "brainfuck.comment("My comment");"
 		brainfuck.comment(input);
 		// You can set maximum in minimum value (values are including) of one cell (pls made it before generating code)
-		brainfuck.minValue = 0; 
-		brainfuck.maxValue = 0xff;
+		brainfuck.minValue = java.lang.Byte.MIN_VALUE; 
+		brainfuck.maxValue = java.lang.Byte.MAX_VALUE;
 		
 		// declarating new variable
 		// names of variables can be same they just for debugging
@@ -72,7 +72,6 @@ public class Brainfucker {
 		brainfuck.repeatWhile(length, () -> { // while(length != 0)
 			// You can create java method for same blocks of code
 			logicForNextElement(a, ' ', last, count, max);
-			last.reset();
 			last.set(a);
 			
 			length.add(-1);
@@ -103,6 +102,7 @@ public class Brainfucker {
 
 	private static void logicForNextElement(Byte a, char stopCharacter, Byte last, Byte count, Byte max) {
 		BrainfuckIO.readInt(a, stopCharacter);
+		a.add(1); // to transform "last < a" to "last <= a"
 		brainfuck.ifLessThanElse(last, a, () -> { // if last < a
 			count.add(1); // add 1 to vriable's value
 			// searching max
@@ -117,6 +117,7 @@ public class Brainfucker {
 			count.reset(); 
 			count.add(1);
 		});
+		a.add(-1);
 	}
 	
 }
